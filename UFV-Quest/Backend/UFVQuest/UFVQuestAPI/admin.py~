@@ -1,5 +1,5 @@
 from django.contrib import admin
-from UFVQuestAPI.models import User, QuestType, GoToAndAnswer, SeekAndAnswer
+from ufv_quest_api.models import User, QuestType, GoToAndAnswer, SeekAndAnswer
 
 class UserAdmin(admin.ModelAdmin):
 	list_display = ['name']
