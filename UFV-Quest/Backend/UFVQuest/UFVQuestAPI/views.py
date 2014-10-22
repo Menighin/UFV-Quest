@@ -1,12 +1,11 @@
 from django.shortcuts import render
-
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
-
-#from django.utils import simplejson
+from django.utils import timezone
 from django.core import serializers
-
 from UFVQuestAPI.models import User
 
+import random
 
 
 def index(request):
@@ -22,3 +21,21 @@ def user(request, user_id):
 	data = serializers.serialize('json', [User.objects.get(pk=user_id)])
 	return HttpResponse(data)
 	#return HttpResponse("You're seeing user %s." % user_id)
+
+@csrf_exempt
+def createUser(request):
+	u = User()
+	oi = ""
+	try:
+		u.facebook_id = request.POST['facebook_id']
+		u.name        = request.POST['name']
+		u.gender      = request.POST['gender']
+		u.avatar      = request.POST['avatar']
+		u.api_key     = random.getrandbits(128)
+		u.energy_left = 5
+		u.last_seen   = timezone.now()
+		u.save()
+	except Exception as e:
+		oi = str(e)
+
+	return HttpResponse("CreateUSER!!! " + oi)
