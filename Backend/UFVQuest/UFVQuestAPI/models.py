@@ -1,7 +1,7 @@
 from django.db import models
 
 class User(models.Model):
-	facebook_id = models.CharField(max_length=200)
+	facebook_id = models.CharField(max_length=200, unique=True)
 	name = models.CharField(max_length=150)
 	gender = models.CharField(max_length=20)
 	avatar = models.CharField(max_length=100)
