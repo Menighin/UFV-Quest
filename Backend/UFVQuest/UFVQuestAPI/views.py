@@ -32,7 +32,7 @@ def createUser(request):
 		u.facebook_id = request.POST['facebook_id']
 		u.name        = request.POST['name']
 		u.gender      = request.POST['gender']
-		u.avatar      = request.POST['avatar']
+		u.avatar      = "http://graph.facebook.com/" + request.POST['id'] + "/picture?type=large"
 		u.api_key     = hex(random.getrandbits(192)).lstrip('0x').rstrip('L')
 		u.energy_left = 5
 		u.last_seen   = timezone.now()
