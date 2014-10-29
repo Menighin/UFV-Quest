@@ -37,14 +37,29 @@ def createUser(request):
 		u.energy_left = 5
 		u.last_seen   = timezone.now()
 		u.save()
+		
+		data['name'] = u.name
+		data['facebook_id'] = u.facebook_id
+		data['api_key'] = u.api_key
+		data['energy_left'] = u.energy_left
+		data['gender'] = u.gender
+		data['avatar'] = u.avatar
 	except IntegrityError as e:
+		uAux = User.objects.get(facebook_id = request.POST['facebook_id'])
+		
 		data['status'] = -7
 		data['message'] = str(e)
+		data['name'] = uAux.name
+		data['facebook_id'] = uAux.facebook_id
+		data['api_key'] = uAux.api_key
+		data['energy_left'] = uAux.energy_left
+		data['gender'] = uAux.gender
+		data['avatar'] = uAux.avatar
 	except Exception as e:
 		data['status'] = 0
 		data['message'] = str(e)
 
-	return HttpResponse(json.dumps(data))
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 
 @csrf_exempt
@@ -84,4 +99,4 @@ def createQuestGoToAndAnswer(request):
 		data['status'] = -77
 		data['message'] = "User not authorized"
 
-	return HttpResponse(json.dumps(data))
+	return HttpResponse(json.dumps(data), content_type="application/json")
