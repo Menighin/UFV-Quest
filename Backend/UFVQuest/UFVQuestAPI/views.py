@@ -66,7 +66,7 @@ def createUser(request):
 def createQuestGoToAndAnswer(request):
 	data = {}
 	data['status'] = 1
-
+	
 	if(auth.authorize(request.POST.get('facebook_id', "0a"), request.POST.get('api_key', ""))):
 	
 		quest = GoToAndAnswer()
@@ -77,7 +77,7 @@ def createQuestGoToAndAnswer(request):
 			quest.place_name      = request.POST['place_name']
 			quest.latitude        = request.POST['latitude']
 			quest.longitude       = request.POST['longitude']
-			quest.points          = int(ufvquest_utils.distance_to_centro_de_vivencia(request.POST['latitude'], request.POST['longitude']) * 0.5)
+			quest.points          = int(ufvquest_utils.distance_to_centro_de_vivencia(request.POST['latitude'], request.POST['longitude']) * 0.5 + 25)
 			quest.created_on      = timezone.now()
 			quest.expiration_date = timezone.now() + datetime.timedelta(days=7)
 			quest.diary			  = False
@@ -97,6 +97,6 @@ def createQuestGoToAndAnswer(request):
 
 	else:
 		data['status'] = -77
-		data['message'] = "User not authorized"
+		data['message'] = "User not authorized"'''
 
 	return HttpResponse(json.dumps(data), content_type="application/json")
