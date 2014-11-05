@@ -65,7 +65,7 @@ def createUser(request):
 @csrf_exempt
 def createQuestGoToAndAnswer(request):
 	data = {}
-	data['status'] = 1 
+	data['status'] = 1
 
 	if(auth.authorize(request.POST['facebook_id'], request.POST['api_key'])):
 	
@@ -77,7 +77,7 @@ def createQuestGoToAndAnswer(request):
 			quest.place_name      = request.POST['place_name']
 			quest.latitude        = request.POST['latitude']
 			quest.longitude       = request.POST['longitude']
-			quest.points          = request.POST['points']
+			quest.points          = int(ufvquest_utils.distance_to_centro_de_vivencia(request.POST['latitude'], request.POST['longitude']) * 0.5)
 			quest.created_on      = timezone.now()
 			quest.expiration_date = timezone.now() + datetime.timedelta(days=7)
 			quest.diary			  = False
