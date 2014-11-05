@@ -6,7 +6,7 @@ from django.core import serializers
 from UFVQuestAPI.models import User, GoToAndAnswer, QuestType
 from django.db import IntegrityError
 
-import random, json, datetime, auth
+import random, json, datetime, auth, ufvquest_utils
 
 
 def index(request):
