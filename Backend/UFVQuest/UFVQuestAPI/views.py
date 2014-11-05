@@ -67,7 +67,7 @@ def createQuestGoToAndAnswer(request):
 	data = {}
 	data['status'] = 1
 
-	if(auth.authorize(request.POST['facebook_id'], request.POST['api_key'])):
+	if(auth.authorize(request.POST.get('facebook_id', "0a"), request.POST.get('api_key', ""))):
 	
 		quest = GoToAndAnswer()
 	
