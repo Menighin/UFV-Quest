@@ -97,6 +97,6 @@ def createQuestGoToAndAnswer(request):
 
 	else:
 		data['status'] = -77
-		data['message'] = "User not authorized"'''
+		data['message'] = "User not authorized"
 
 	return HttpResponse(json.dumps(data), content_type="application/json")
