@@ -68,7 +68,7 @@ def getQuestTypes(request):
 	data['status'] = 1
 
 	try:
-		data['questTypes'] = serializers.serialize("json", QuestType.objects.all())
+		data['questTypes'] = json.loads(serializers.serialize("json", QuestType.objects.all()))
 	except Exception as e:
 		data['status'] = 0
 		data['message'] = str(e)
