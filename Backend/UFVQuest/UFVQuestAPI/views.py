@@ -63,6 +63,20 @@ def createUser(request):
 
 
 @csrf_exempt
+def getQuestTypes(request):
+	data = {}
+	data['status'] = 1
+
+	try:
+		data['questTypes'] = serializers.serialize("json", QuestType.objects.all())
+	except Exception as e:
+		data['status'] = 0
+		data['message'] = str(e)
+
+	return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+@csrf_exempt
 def createQuestGoToAndAnswer(request):
 	data = {}
 	data['status'] = 1

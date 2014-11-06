@@ -13,6 +13,7 @@ class User(models.Model):
 class QuestType(models.Model):
 	name = models.CharField(max_length=50)
 	description = models.CharField(max_length=280)
+	html = models.CharField(max_length=3000)
 
 
 class Quest(models.Model):
