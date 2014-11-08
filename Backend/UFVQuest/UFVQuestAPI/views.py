@@ -3,8 +3,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.utils import timezone
 from django.core import serializers
-from UFVQuestAPI.models import User, GoToAndAnswer, QuestType
+from UFVQuestAPI.models import User, GoToAndAnswer, QuestType, Quest, SeekAndAnswer
 from django.db import IntegrityError
+from django.core.serializers.json import DjangoJSONEncoder
+from django.forms.models import model_to_dict
 
 import random, json, datetime, auth, ufvquest_utils
 
@@ -63,6 +65,29 @@ def createUser(request):
 
 
 @csrf_exempt
+def getActiveQuests(request):
+	data = {}
+	data['status'] = 1
+
+	try:
+		data['quests'] = list()
+
+		for model in SeekAndAnswer.objects.all():
+			if(model.expiration_date >= timezone.now()):
+				data['quests'].append(model_to_dict(model))
+
+		for model in GoToAndAnswer.objects.all():
+			if(model.expiration_date >= timezone.now()):
+				data['quests'].append(model_to_dict(model))
+
+	except Exception as e:
+		data['status'] = 0
+		data['message'] = str(e)
+	
+	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type="application/json")
+
+
+@csrf_exempt
 def getQuestTypes(request):
 	data = {}
 	data['status'] = 1
@@ -104,6 +129,42 @@ def createQuestGoToAndAnswer(request):
 			quest.answer3         = request.POST['answer3']
 			quest.answer4         = request.POST['answer4']
 			quest.correct_answer  = request.POST['correct_answer']
+			quest.save()
+		except Exception as e:
+			data['status'] = 0
+			data['message'] = str(e)
+
+	else:
+		data['status'] = -77
+		data['message'] = "User not authorized"
+
+	return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+@csrf_exempt
+def createQuestSeekAndAnswer(request):
+	data = {}
+	data['status'] = 1
+	
+	if(auth.authorize(request.POST.get('facebook_id', "0a"), request.POST.get('api_key', ""))):
+	
+		quest = SeekAndAnswer()
+	
+		try:
+			quest.title           = request.POST['title']
+			quest.description     = request.POST['description']
+			quest.place_name      = request.POST['place_name']
+			quest.latitude        = request.POST['latitude']
+			quest.longitude       = request.POST['longitude']
+			quest.points          = int(ufvquest_utils.distance_to_centro_de_vivencia(request.POST['latitude'], request.POST['longitude']) * 0.5 + 25)
+			quest.created_on      = timezone.now()
+			quest.expiration_date = timezone.now() + datetime.timedelta(days=7)
+			quest.diary			  = False
+			quest.created_by	  = User.objects.get(facebook_id = request.POST['facebook_id'])
+			quest.quest_type	  = QuestType.objects.get(id=1)	
+
+			quest.question        = request.POST['question']
+			quest.answer          = request.POST['answer']
 			quest.save()
 		except Exception as e:
 			data['status'] = 0
