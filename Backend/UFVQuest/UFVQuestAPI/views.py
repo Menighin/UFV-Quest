@@ -3,10 +3,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.utils import timezone
 from django.core import serializers
-from UFVQuestAPI.models import User, GoToAndAnswer, QuestType, Quest, SeekAndAnswer
+from UFVQuestAPI.models import User, GoToAndAnswer, QuestType, Quest, SeekAndAnswer, UserAttemptsQuest
 from django.db import IntegrityError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.forms.models import model_to_dict
+from django.db.models import Sum
 
 import random, json, datetime, auth, ufvquest_utils
 
@@ -57,11 +58,12 @@ def createUser(request):
 		data['energy_left'] = uAux.energy_left
 		data['gender'] = uAux.gender
 		data['avatar'] = uAux.avatar
+		data['points'] = UserAttemptsQuest.objects.filter(user = uAux, solved = True).aggregate(Sum('points_won'))['points_won__sum']
 	except Exception as e:
 		data['status'] = 0
 		data['message'] = str(e)
 
-	return HttpResponse(json.dumps(data), content_type="application/json")
+	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type="application/json")
 
 
 @csrf_exempt
@@ -73,12 +75,14 @@ def getActiveQuests(request):
 		data['quests'] = list()
 
 		for model in SeekAndAnswer.objects.all():
-			if(model.expiration_date >= timezone.now()):
+			if(model.expiration_date >= timezone.now() or model.diary == True):
 				data['quests'].append(model_to_dict(model))
+				data['quests'][-1]['type'] = "saa"
 
 		for model in GoToAndAnswer.objects.all():
-			if(model.expiration_date >= timezone.now()):
+			if(model.expiration_date >= timezone.now() or model.diary == True):
 				data['quests'].append(model_to_dict(model))
+				data['quests'][-1]['type'] = "gtaa"
 
 	except Exception as e:
 		data['status'] = 0
@@ -100,6 +104,32 @@ def getQuestTypes(request):
 
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
+
+@csrf_exempt
+def getUserRanking(request):
+	data = {}
+	data['status'] = 1
+	auxTotal = list()
+	auxWeek = list()
+	
+	try:
+		total = UserAttemptsQuest.objects.filter(solved = True).values('user').annotate(points_sum=Sum('points_won'))
+		week = UserAttemptsQuest.objects.filter(solved = True, timestamp__range = [timezone.now() - datetime.timedelta(days=7), timezone.now()] ).values('user').annotate(points_sum=Sum('points_won'))
+	
+		for user in total:
+			auxTotal.append({'points': user['points_sum'], 'name': User.objects.get(id = user['user']).name, 'avatar' :  User.objects.get(id = user['user']).avatar})
+
+		for user in week:
+			auxWeek.append({'points': user['points_sum'], 'name': User.objects.get(id = user['user']).name, 'avatar' :  User.objects.get(id = user['user']).avatar})
+
+		data['total'] = sorted(auxTotal, key = lambda k: k['points'])
+		data['week'] = sorted(auxWeek, key = lambda k: k['points'])
+	except Exception as e:
+		data['status'] = 0
+		data['message'] = str(e)
+
+	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type="application/json")
+	
 
 @csrf_exempt
 def createQuestGoToAndAnswer(request):
