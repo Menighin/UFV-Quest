@@ -59,6 +59,12 @@ def createUser(request):
 		data['gender'] = uAux.gender
 		data['avatar'] = uAux.avatar
 		data['points'] = UserAttemptsQuest.objects.filter(user = uAux, solved = True).aggregate(Sum('points_won'))['points_won__sum']
+
+		try:
+			last_added_quest = Quest.objects.filter(created_by = uAux).order_by('-created_on')[0].created_on
+			data['time_since_last_quest'] = (timezone.now() - last_added_quest).days
+		except Exception as e:
+			data['time_since_last_quest'] = 9999
 	except Exception as e:
 		data['status'] = 0
 		data['message'] = str(e)
