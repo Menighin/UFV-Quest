@@ -128,15 +128,40 @@ def getUserRanking(request):
 		for user in week:
 			auxWeek.append({'points': user['points_sum'], 'name': User.objects.get(id = user['user']).name, 'avatar' :  User.objects.get(id = user['user']).avatar})
 
-		data['total'] = sorted(auxTotal, key = lambda k: k['points'])
-		data['week'] = sorted(auxWeek, key = lambda k: k['points'])
+		data['total'] = sorted(auxTotal, key = lambda k: -k['points'])
+		data['week'] = sorted(auxWeek, key = lambda k: -k['points'])
 	except Exception as e:
 		data['status'] = 0
 		data['message'] = str(e)
 
 	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type="application/json")
-	
 
+
+@csrf_exempt
+def getQuestHistory(request):
+	data = {}
+	data['status'] = 1
+	data['history'] = list()
+	
+	if(auth.authorize(request.POST.get('facebook_id', "0a"), request.POST.get('api_key', ""))):
+		try:
+			user = User.objects.get(facebook_id = request.POST['facebook_id'])
+			attempts = UserAttemptsQuest.objects.filter(user=user).order_by('-timestamp')
+
+			for a in attempts:
+				data['history'].append({'solved': a.solved, 'points': a.points_won, 'timestamp': a.timestamp.isoformat(), 
+										'quest_title': a.quest.title, 'quest_type': a.quest.quest_type.alias, 'quest_description': a.quest.description})
+			
+		except Exception as e:
+			data['status'] = 0
+			data['message'] = str(e)
+	else:
+		data['status'] = -77
+		data['message'] = "User not authorized"
+
+	return HttpResponse(json.dumps(data), content_type="application/json")
+
+	
 @csrf_exempt
 def createQuestGoToAndAnswer(request):
 	data = {}

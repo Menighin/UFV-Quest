@@ -12,4 +12,5 @@ urlpatterns = patterns('',
 	url(r'^getQuestTypes', views.getQuestTypes, name='getQuestTypes'),
 	url(r'^getActiveQuests', views.getActiveQuests, name='getActiveQuests'),
 	url(r'^getUserRanking', views.getUserRanking, name='getUserRanking'),
+	url(r'^getQuestHistory', views.getQuestHistory, name='getQuestHistory'),
 )
