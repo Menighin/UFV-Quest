@@ -98,6 +98,44 @@ def getActiveQuests(request):
 
 
 @csrf_exempt
+def getQuestIStillCanComplete(request):
+	data = {}
+	data['status'] = 1
+	
+	if(auth.authorize(request.POST.get('facebook_id', "0a"), request.POST.get('api_key', ""))):
+		data['quests'] = list()
+		
+		try:
+			user = User.objects.get(facebook_id = request.POST['facebook_id'])	
+
+			for model in SeekAndAnswer.objects.all():
+				if(model.expiration_date >= timezone.now() or model.diary == True):
+					print model_to_dict(model)
+					successful_attempt = UserAttemptsQuest.objects.filter(user = user, solved = True, quest = model.quest_ptr)
+					if not successful_attempt:
+						data['quests'].append(model_to_dict(model))
+						data['quests'][-1]['type'] = "saa"
+
+			for model in GoToAndAnswer.objects.all():
+				if(model.expiration_date >= timezone.now() or model.diary == True):
+					successful_attempt = UserAttemptsQuest.objects.filter(user = user, solved = True, quest = model.quest_ptr)
+					if not successful_attempt:
+						data['quests'].append(model_to_dict(model))
+						data['quests'][-1]['type'] = "gtaa"
+
+		except Exception as e:
+			data['status'] = -1
+			data['message'] = str(e)
+
+
+	else:
+		data['status'] = -77
+		data['message'] = "User not authorized"
+
+	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder), content_type="application/json")
+
+
+@csrf_exempt
 def getQuestTypes(request):
 	data = {}
 	data['status'] = 1
@@ -222,7 +260,7 @@ def createQuestSeekAndAnswer(request):
 			quest.expiration_date = timezone.now() + datetime.timedelta(days=7)
 			quest.diary			  = False
 			quest.created_by	  = User.objects.get(facebook_id = request.POST['facebook_id'])
-			quest.quest_type	  = QuestType.objects.get(id=1)	
+			quest.quest_type	  = QuestType.objects.get(id=2)	
 
 			quest.question        = request.POST['question']
 			quest.answer          = request.POST['answer']
