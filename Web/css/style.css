@@ -1,0 +1,404 @@
+* {
+	padding: 0;
+	margin: 0;
+	font-family: sans-serif;
+}
+
+body {
+	background-color: #fefefe;
+}
+.login-container {
+	width: 478px;
+	height: 545px;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-left: -239px;
+	margin-top: -300px;
+}
+
+.fb-login-button {
+	margin-left: 190px; 
+}
+
+#map-canvas {
+	height: 100%;
+}
+
+.total-wrapper {
+	height: 100%;
+}
+
+.total-dim {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 200;
+	background-color: rgba(255, 255, 255, 0.5);
+}
+
+.center-top-map {
+	position: absolute;
+	width: 200px;
+	height: 50px;
+	top: 0;
+	left: 50%;
+	margin-left: -100px;
+	z-index: 100;
+}
+
+.add-quest-active {
+	background-color: rgba(130, 130, 130, 0.8) !important;
+}
+
+/***** SIDE MENU ***********************************************************************/
+
+.side-menu-wrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 300px;
+	height: 100%;
+	background-color: rgba(30, 30, 30, 0.8);
+	z-index: 100;
+	margin-left: -300px;
+}
+
+.open-menu-button {
+	background-color: rgba(30, 30, 30, 0.8);
+	border: 1px #ddd solid;
+	padding: 10px;
+	color: white;
+	width: 10px;
+	height: 10px;
+	float: right;
+	position: relative;
+	left: 33px;
+	top: 2px;
+	cursor: pointer;
+}
+
+.open-menu-button:hover {
+	background-color: rgba(80, 80, 80, 0.8);
+}
+
+.user-name {
+	color: white;
+	display: inline-block;
+	position: relative;
+	top: -80px;
+	left: 100px;
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.user-points {
+	color: #ccc;
+	display: inline-block;
+	position: relative;
+	top: -80px;
+	left: 100px;
+	font-size: 24px;
+}
+
+.user-avatar {
+	display: inline-block;
+	width: 80px;
+	height: 80px;
+	border-radius: 150px;
+	-webkit-border-radius: 150px;
+	-moz-border-radius: 150px;
+	margin: 10px;
+}
+
+.side-menu-items {
+	width: 100%;
+}
+
+.side-menu-items li {
+	padding: 10px 0;
+	width: 100%;
+	color: white;
+	border-bottom: 1px #888 solid;
+	text-align: center;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.side-menu-items li:last-child {
+	border-bottom: 0;
+}
+
+.side-menu-items li:hover {
+	background-color: rgba(100, 100, 100, 0.5);
+}
+
+/* ADD QUEST **********************************************************************/
+
+.add-quest-info-wrapper{
+	width: 200px;
+	height: 180px;
+	text-align: center;
+}
+
+.add-quest-description  {
+	width: 180px;
+	height: 80px;
+	margin: 10px auto;
+	overflow: auto;
+	border: 1px #ccc solid;
+	text-align: left;
+}
+
+.lightbox {
+	position: absolute;
+	top: 15%;
+	left: 25%;
+	width: 50%;
+	height: 60%;
+	background-color: white;
+	z-index: 300;
+	box-shadow: 0px 0px 11px #aaa;
+	padding: 40px;
+	display: none;
+}
+
+.lightbox-close-button {
+	float: right;
+	cursor: pointer;
+	color: #aaa;
+	position: relative;
+	top: -20px;
+	left: 15px;
+}
+
+.lightbox-close-button:hover {
+	color: #555;
+}
+
+.add-quest-lightbox-wrapper {
+	overflow: auto;
+	height: 100%;
+	text-align: center;
+}
+
+#add-quest-lightbox-form input[type=text] {
+	padding: 5px;
+	font-size: 24px;
+	border: 0;
+	border-bottom: 1px solid #ccc;
+	width: 80%;
+	color: #555;
+}
+
+#add-quest-lightbox-form input[type=text]:focus {
+	border: 0;
+	border-bottom: 2px solid #51bef6;
+	outline: none;
+}
+
+#add-quest-lightbox-form textarea {
+	padding: 5px;
+	font-size: 24px;
+	border: 1px solid #ccc;
+	width: 80%;
+	color: #555;
+	resize: none;
+	font-family: sans-serif;
+}
+
+#add-quest-lightbox-form textarea:focus {
+	outline: none;
+	border: 2px solid #51bef6;
+}
+
+/*** USER RANKING **************************************************************/
+.lightbox-title {
+	text-align: center;
+	color: #999;
+	font-size: 24px;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.ranking-tabs {
+	width: 100%;
+	list-style: none;
+	text-align: center;
+}
+
+.ranking-tabs li {
+	display: inline-block;
+	width: 45%;
+	text-align: center;
+	padding: 10px 0;
+	font-size: 24px;
+	cursor: pointer;
+	border-bottom: 4px solid #ddd;
+	color: #555;
+	font-weight: bold;
+}
+
+.ranking-tabs li:hover {
+	background-color: #eee;
+}
+
+.ranking-item-avatar {
+	display: inline-block;
+	width: 80px;
+	height: 80px;
+	border-radius: 150px;
+	-webkit-border-radius: 150px;
+	-moz-border-radius: 150px;
+	margin: 10px;
+	background-size: 80px auto;
+}
+
+.ranking-tab-active {
+	border-bottom: 4px solid #555 !important;
+}
+
+.ranking-wrapper {
+	height: 90%;
+}
+
+.ranking-indeed {
+	width: 90%;
+	margin: 0 auto;
+	padding-right: 10px;
+	overflow: auto;
+	height: 100%;
+	margin-top: 10px;
+}
+
+.ranking-item {
+	padding: 15px;
+	border-bottom: 2px #eee solid;
+}
+
+.ranking-item:last-child {
+	border: 0;
+}
+
+.ranking-item-position {
+	display: inline-block;
+	font-size: 24px;
+	font-weight: bold;
+	padding: 0 10px;
+}
+
+.ranking-item-avatar {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.ranking-item-name {
+	display: inline-block;
+	font-size: 18px;
+	color: #666;
+	padding: 0 20px;
+}
+
+.ranking-item-points {
+	display: inline-block;
+	float: right;
+	font-size: 30px;
+	color: #999;
+	padding-right: 50px;
+	padding-top: 35px;
+}
+
+/*** QUEST HISTORY *************************************************************/
+.quest-history-wrapper {
+	height: 90%;
+}
+
+.quest-history-indeed {
+	width: 90%;
+	margin: 0 auto;
+	padding-right: 10px;
+	overflow: auto;
+	height: 100%;
+	margin-top: 10px;
+}
+
+.history-item {
+	padding: 15px;
+	border-bottom: 2px #eee solid;
+}
+
+.history-item:last-child {
+	border: 0;
+}
+
+.history-date {
+	display: inline-block;
+	color: #aaa;
+	font-size: 12px;
+}
+
+.history-quest-icon {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 10px;
+}
+
+.history-quest-info {
+	display: inline-block;
+	vertical-align: middle;
+	width: 50%;
+	margin: 0 30px;
+}
+
+.history-quest-title {
+	color: #333;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+.history-quest-desc {
+	color: #777;
+	font-size: 13px;
+	height: 50px;
+	overflow: auto;
+	width: 100%;
+}
+
+.history-solved-img {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.history-points {
+	display: inline-block;
+	font-size: 30px;
+	color: #999;
+	margin-left: 20px;
+	padding-top: 10px;
+}
+
+/*** DOWNLOADED QUESTS *********************************************************/
+.info-downloaded-quest {
+	width: 200px;
+	height: 150px;
+	text-align: center;
+}
+
+.info-donwloaded-quest-description {
+	width: 180px;
+	height: 80px;
+	margin: 10px auto;
+	overflow: auto;
+	border: 1px #ccc solid;
+	text-align: left;
+	padding: 5px;
+}
+
+.info-donwloaded-quest-location {
+	text-align: left;
+	margin-top: 3px;
+}

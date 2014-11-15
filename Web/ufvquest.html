@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>UFV Quest</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" href="img/favicon.png" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		
+		<style type="text/css">
+		    html { height: 100% }
+		    body { height: 100%; margin: 0; padding: 0 }
+		</style>
+		
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+		
+	</head>
+	<body>
+		<div class="total-dim"></div>
+		<div class="total-wrapper">
+			<div class="side-menu-wrapper">
+				<div class="open-menu-button" onclick="openMenu();">...</div>
+				<div class="user-info">
+					<div class="user-avatar"></div>
+					<div class="user-name"></div><br />
+					<div class="user-points"></div>
+				</div>
+				<ul class="side-menu-items">
+					<li class="add-quest-button" onclick="onAddQuestButtonClick();">Adicionar Quest</li>
+					<li onclick="openRankingLightbox();">Ranking de Players</li>
+					<li onclick="openQuestHistoryLightbox();">Histórico de tentativas</li>
+				</ul>
+			</div> <!-- side-menu -->
+			
+			<div class="add-quest-lightbox lightbox">
+				<div class="lightbox-dim"></div>
+				<h3 class="lightbox-close-button" onclick="closeAddQuestLightBox()">X</h3>
+				<div class="add-quest-lightbox-wrapper">
+					<h2 class="add-quest-lightbox-type">Chegar e responder</h2>
+					
+					<form autocomplete="off" id="add-quest-lightbox-form" onsubmit="uploadQuest(this); return false;">
+						<div class="add-quest-lighbox-inputs-form">
+							<input type="text" name="title" placeholder="Título" required/><br /><br />
+							<input type="text" name="place_name" placeholder="Nome do lugar" required/><br /><br />
+							<textarea name="description" rows="3" cols="50" placeholder="Pequena descrição dos desafios dessa quest" required></textarea><br /><br />
+							
+						</div>
+						<input type="submit" value="Cadastrar" />
+					</form>
+					<div class="lightbox-error"></div>
+				</div>
+			</div>
+			
+			<div class="user-ranking-lightbox lightbox">
+				<div class="lightbox-dim"></div>
+				<h3 class="lightbox-close-button" onclick="closeRankingLightbox()">X</h3>
+				<h1 class="lightbox-title">Ranking de Usuários</h1>
+				<div class="ranking-wrapper">
+					<ul class="ranking-tabs">
+						<li class="ranking-tab-active" onclick="populateRanking('w', this);">Semanal</li>
+						<li onclick="populateRanking('t', this);">Total</li>
+					</ul>
+					<div class="ranking-indeed">
+					</div>
+				</div>
+			</div>
+			
+			<div class="quest-history-lightbox lightbox">
+				<div class="lightbox-dim"></div>
+				<h3 class="lightbox-close-button" onclick="closeQuestHistoryLightbox()">X</h3>
+				<h1 class="lightbox-title">Histórico de Tentativas</h1>
+				<div class="quest-history-wrapper">
+					<div class="quest-history-indeed">
+						
+					</div>
+				</div>
+			</div>
+			
+			<div id="map-canvas"></div>
+		</div>
+		
+		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+		<script type="text/javascript" src="js/ufv-quest-utils.js"></script>
+		<script type="text/javascript" src="js/ufvquest.js"></script>
+	</body>
+</html>	
