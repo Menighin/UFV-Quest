@@ -112,16 +112,24 @@ def getQuestIStillCanComplete(request):
 				if(model.expiration_date >= timezone.now() or model.diary == True):
 					print model_to_dict(model)
 					successful_attempt = UserAttemptsQuest.objects.filter(user = user, solved = True, quest = model.quest_ptr)
+					fail_attempts = UserAttemptsQuest.objects.filter(user = user, solved = False, quest = model.quest_ptr)
 					if not successful_attempt:
 						data['quests'].append(model_to_dict(model))
 						data['quests'][-1]['type'] = "saa"
+						points = int(model.quest_ptr.points - (model.quest_ptr.points * 0.05 * fail_attempts.count()))
+						data['quests'][-1]['points'] = points if points > 10 else 10
+						data['quests'][-1]['percent_loss'] = 5 * fail_attempts.count()
 
 			for model in GoToAndAnswer.objects.all():
 				if(model.expiration_date >= timezone.now() or model.diary == True):
 					successful_attempt = UserAttemptsQuest.objects.filter(user = user, solved = True, quest = model.quest_ptr)
+					fail_attempts = UserAttemptsQuest.objects.filter(user = user, solved = False, quest = model.quest_ptr)
 					if not successful_attempt:
 						data['quests'].append(model_to_dict(model))
 						data['quests'][-1]['type'] = "gtaa"
+						points = int(model.quest_ptr.points - (model.quest_ptr.points * 0.05 * fail_attempts.count()))
+						data['quests'][-1]['points'] = points if points > 10 else 10
+						data['quests'][-1]['percent_loss'] = 5 * fail_attempts.count()
 
 		except Exception as e:
 			data['status'] = -1
@@ -268,6 +276,41 @@ def createQuestSeekAndAnswer(request):
 		except Exception as e:
 			data['status'] = 0
 			data['message'] = str(e)
+
+	else:
+		data['status'] = -77
+		data['message'] = "User not authorized"
+
+	return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+@csrf_exempt
+def tryQuest(request):
+	data = {}
+	data['status'] = 1
+
+	if(auth.authorize(request.POST.get('facebook_id', "0a"), request.POST.get('api_key', ""))):
+
+		attempt = UserAttemptsQuest()
+
+		try:
+			attempt.user = User.objects.get(facebook_id = request.POST['facebook_id'])
+			attempt.quest = Quest.objects.get(id = request.POST['quest_id'])
+			attempt.timestamp = timezone.now()
+			attempt.solved = bool(int(request.POST['solved']))
+		
+			previous_attempts = UserAttemptsQuest.objects.filter(user = attempt.user, quest = attempt.quest)
+
+			points_won = int(attempt.quest.points - (attempt.quest.points * 0.05 * previous_attempts.count()))			
+		
+			attempt.points_won = points_won if points_won > 10 else 10
+
+			attempt.save()
+			
+		except Exception as e:
+			data['status'] = 0
+			data['message'] = str(e)
+		
 
 	else:
 		data['status'] = -77
