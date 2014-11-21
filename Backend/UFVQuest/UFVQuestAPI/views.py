@@ -317,3 +317,30 @@ def tryQuest(request):
 		data['message'] = "User not authorized"
 
 	return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+@csrf_exempt
+def spendEnergy(request):
+	data = {}
+	data['status'] = 1
+
+	if(auth.authorize(request.POST.get('facebook_id', "0a"), request.POST.get('api_key', ""))):
+
+		try:
+			user = User.objects.get(facebook_id = request.POST['facebook_id'])
+			user.energy_left = user.energy_left - 1
+			
+			if (user.energy_left < 0):
+				user.energy_left = 0
+				data['message'] = "You already have 0 energy"
+
+			user.save()
+			
+		except Exception as e:
+			data['status'] = 0
+			data['message'] = str(e)
+	else:
+		data['status'] = -77
+		data['message'] = "User not authorized"
+
+	return HttpResponse(json.dumps(data), content_type="application/json")
