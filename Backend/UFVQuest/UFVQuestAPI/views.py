@@ -109,11 +109,17 @@ def getQuestIStillCanComplete(request):
 			user = User.objects.get(facebook_id = request.POST['facebook_id'])	
 
 			for model in SeekAndAnswer.objects.all():
-				if(model.expiration_date >= timezone.now() or model.diary == True):
-					print model_to_dict(model)
+				if model.expiration_date >= timezone.now() or model.diary == True:
 					successful_attempt = UserAttemptsQuest.objects.filter(user = user, solved = True, quest = model.quest_ptr)
-					fail_attempts = UserAttemptsQuest.objects.filter(user = user, solved = False, quest = model.quest_ptr)
-					if not successful_attempt:
+					fail_attempts = UserAttemptsQuest.objects.filter(user = user, solved = False, quest = model.quest_ptr).order_by('-timestamp')			
+
+					tried_today = False
+					if fail_attempts:
+						last_fail = fail_attempts[0]
+						if last_fail.timestamp.date() == timezone.now().date(): 
+							tried_today = True
+					
+					if not successful_attempt and not tried_today:
 						data['quests'].append(model_to_dict(model))
 						data['quests'][-1]['type'] = "saa"
 						points = int(model.quest_ptr.points - (model.quest_ptr.points * 0.05 * fail_attempts.count()))
@@ -121,10 +127,17 @@ def getQuestIStillCanComplete(request):
 						data['quests'][-1]['percent_loss'] = 5 * fail_attempts.count()
 
 			for model in GoToAndAnswer.objects.all():
-				if(model.expiration_date >= timezone.now() or model.diary == True):
+				if model.expiration_date >= timezone.now() or model.diary == True:
 					successful_attempt = UserAttemptsQuest.objects.filter(user = user, solved = True, quest = model.quest_ptr)
 					fail_attempts = UserAttemptsQuest.objects.filter(user = user, solved = False, quest = model.quest_ptr)
-					if not successful_attempt:
+
+					tried_today = False
+					if fail_attempts:
+						last_fail = fail_attempts[0]
+						if last_fail.timestamp.date() == timezone.now().date(): 
+							tried_today = True
+
+					if not successful_attempt and not tried_today:
 						data['quests'].append(model_to_dict(model))
 						data['quests'][-1]['type'] = "gtaa"
 						points = int(model.quest_ptr.points - (model.quest_ptr.points * 0.05 * fail_attempts.count()))
@@ -306,6 +319,8 @@ def tryQuest(request):
 			attempt.points_won = points_won if points_won > 10 else 10
 
 			attempt.save()
+
+			data['points_won'] = points_won
 			
 		except Exception as e:
 			data['status'] = 0
