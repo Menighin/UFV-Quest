@@ -302,7 +302,7 @@ def tryQuest(request):
 	data = {}
 	data['status'] = 1
 
-	if(auth.authorize(request.POST.get('facebook_id', "0a"), request.POST.get('api_key', ""))):
+	if auth.authorize(request.POST.get('facebook_id', "0a"), request.POST.get('api_key', "")):
 
 		attempt = UserAttemptsQuest()
 
@@ -310,17 +310,24 @@ def tryQuest(request):
 			attempt.user = User.objects.get(facebook_id = request.POST['facebook_id'])
 			attempt.quest = Quest.objects.get(id = request.POST['quest_id'])
 			attempt.timestamp = timezone.now()
-			attempt.solved = bool(int(request.POST['solved']))
-		
+
+			if request.POST['quest_type'] == "gtaa":
+				quest = GoToAndAnswer.objects.get(quest_ptr = attempt.quest)
+				attempt.solved = True if str(quest.correct_answer) == request.POST['answer'] else False				
+			elif request.POST['quest_type'] == "saa":
+				quest = SeekAndAnswer.objects.get(quest_ptr = attempt.quest)
+				#TODO: Stuff				
+
 			previous_attempts = UserAttemptsQuest.objects.filter(user = attempt.user, quest = attempt.quest)
 
 			points_won = int(attempt.quest.points - (attempt.quest.points * 0.05 * previous_attempts.count()))			
 		
 			attempt.points_won = points_won if points_won > 10 else 10
 
-			attempt.save()
-
+			data['status'] = 1 if attempt.solved == True else 2
 			data['points_won'] = points_won
+
+			attempt.save()
 			
 		except Exception as e:
 			data['status'] = 0
