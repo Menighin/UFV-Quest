@@ -32,7 +32,6 @@
 			</div> <!-- side-menu -->
 			
 			<div class="add-quest-lightbox lightbox">
-				<div class="lightbox-dim"></div>
 				<h3 class="lightbox-close-button" onclick="closeAddQuestLightBox()">X</h3>
 				<div class="add-quest-lightbox-wrapper">
 					<h2 class="add-quest-lightbox-type">Chegar e responder</h2>
@@ -51,7 +50,6 @@
 			</div>
 			
 			<div class="user-ranking-lightbox lightbox">
-				<div class="lightbox-dim"></div>
 				<h3 class="lightbox-close-button" onclick="closeRankingLightbox()">X</h3>
 				<h1 class="lightbox-title">Ranking de Usuários</h1>
 				<div class="ranking-wrapper">
@@ -59,16 +57,18 @@
 						<li class="ranking-tab-active" onclick="populateRanking('w', this);">Semanal</li>
 						<li onclick="populateRanking('t', this);">Total</li>
 					</ul>
+					<div class="loader"></div>
 					<div class="ranking-indeed">
+						
 					</div>
 				</div>
 			</div>
 			
 			<div class="quest-history-lightbox lightbox">
-				<div class="lightbox-dim"></div>
 				<h3 class="lightbox-close-button" onclick="closeQuestHistoryLightbox()">X</h3>
 				<h1 class="lightbox-title">Histórico de Tentativas</h1>
 				<div class="quest-history-wrapper">
+					<div class="loader"></div>
 					<div class="quest-history-indeed">
 						
 					</div>

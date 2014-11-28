@@ -54,6 +54,14 @@ body {
 	background-color: rgba(130, 130, 130, 0.8) !important;
 }
 
+.loader {
+	text-align: center;
+	width: 100%;
+}
+.loading-img {
+	margin-top: 50px;
+}
+
 /***** SIDE MENU ***********************************************************************/
 
 .side-menu-wrapper {
@@ -217,6 +225,14 @@ body {
 }
 
 /*** USER RANKING **************************************************************/
+.lightbox-dim {
+	position: fixed;
+	float: left;
+	width: 100%;
+	height: 100%;
+	background-color: #ccc;
+}
+
 .lightbox-title {
 	text-align: center;
 	color: #999;

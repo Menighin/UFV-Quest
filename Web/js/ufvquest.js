@@ -215,14 +215,19 @@ function uploadQuest(form) {
 function openRankingLightbox() {
 	$(".total-dim").css("display", "block");
 	$(".user-ranking-lightbox").css("display", "block");
-	
+	$(".loader").html("<img src='img/loading.gif' class='loading-img' />");
+	$(".ranking-indeed").html("");
 	$.ajax({
 		type: "GET",
 		url: API_URL + "/getUserRanking",
 		success: function(data){
 			if (data.status == 1) {
 				rankingUsers = data;
-				populateRanking('w', $(".ranking-tabs li")[0]);
+				
+				setTimeout(function () {
+					$(".loader").html("");
+					populateRanking('w', $(".ranking-tabs li")[0]);
+				}, 1000);
 			} else {
 				alert("Erro loco na hora de baixar o ranking");
 				closeRankingLightbox();
@@ -262,11 +267,15 @@ function openQuestHistoryLightbox() {
 	$(".total-dim").css("display", "block");
 	$(".quest-history-lightbox").css("display", "block");
 	
+	$(".loader").html("<img src='img/loading.gif' class='loading-img' />");
+	$(".quest-history-indeed").html("");
+	
 	$.ajax({
 		type: "POST",
 		url: API_URL + "/getQuestHistory",
 		data: {facebook_id: USER.facebook_id, api_key: USER.api_key},
 		success: function(data){
+			$(".loader").html("");
 			if (data.status == 1) {
 				var hist = data.history;
 				$(".quest-history-indeed").html("");
