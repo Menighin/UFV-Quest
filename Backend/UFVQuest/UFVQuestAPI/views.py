@@ -112,6 +112,10 @@ def getQuestIStillCanComplete(request):
 				if model.expiration_date >= timezone.now() or model.diary == True:
 					successful_attempt = UserAttemptsQuest.objects.filter(user = user, solved = True, quest = model.quest_ptr)
 					fail_attempts = UserAttemptsQuest.objects.filter(user = user, solved = False, quest = model.quest_ptr).order_by('-timestamp')			
+					
+					total_successful = UserAttemptsQuest.objects.filter(solved = True, quest = model.quest_ptr).count()	
+					total_fail = UserAttemptsQuest.objects.filter(solved = False, quest = model.quest_ptr).count()
+					total_quests = total_successful + total_fail if total_successful + total_fail > 0 else 1					
 
 					tried_today = False
 					if fail_attempts:
@@ -125,11 +129,16 @@ def getQuestIStillCanComplete(request):
 						points = int(model.quest_ptr.points - (model.quest_ptr.points * 0.05 * fail_attempts.count()))
 						data['quests'][-1]['points'] = points if points > 10 else 10
 						data['quests'][-1]['percent_loss'] = 5 * fail_attempts.count()
+						data['quests'][-1]['success_rate'] = (total_successful*100)/(total_quests)
 
 			for model in GoToAndAnswer.objects.all():
 				if model.expiration_date >= timezone.now() or model.diary == True:
 					successful_attempt = UserAttemptsQuest.objects.filter(user = user, solved = True, quest = model.quest_ptr)
 					fail_attempts = UserAttemptsQuest.objects.filter(user = user, solved = False, quest = model.quest_ptr)
+					
+					total_successful = UserAttemptsQuest.objects.filter(solved = True, quest = model.quest_ptr).count()	
+					total_fail = UserAttemptsQuest.objects.filter(solved = False, quest = model.quest_ptr).count()	
+					total_quests = total_successful + total_fail if total_successful + total_fail > 0 else 1					
 
 					tried_today = False
 					if fail_attempts:
@@ -143,6 +152,7 @@ def getQuestIStillCanComplete(request):
 						points = int(model.quest_ptr.points - (model.quest_ptr.points * 0.05 * fail_attempts.count()))
 						data['quests'][-1]['points'] = points if points > 10 else 10
 						data['quests'][-1]['percent_loss'] = 5 * fail_attempts.count()
+						data['quests'][-1]['success_rate'] = (total_successful*100)/(total_quests)
 
 		except Exception as e:
 			data['status'] = -1
@@ -316,7 +326,10 @@ def tryQuest(request):
 				attempt.solved = True if str(quest.correct_answer) == request.POST['answer'] else False				
 			elif request.POST['quest_type'] == "saa":
 				quest = SeekAndAnswer.objects.get(quest_ptr = attempt.quest)
-				#TODO: Stuff				
+				attempt.solved = False
+				for correct_answer in quest.answer.split(','):
+					if correct_answer == request.POST['answer']:  
+						attempt.solved = True
 
 			previous_attempts = UserAttemptsQuest.objects.filter(user = attempt.user, quest = attempt.quest)
 
