@@ -14,6 +14,11 @@ $(document).ready(function () {
 	var mapOptions = {
 		center: new google.maps.LatLng(-20.762392, -42.868431),
 		zoom: 16,
+		panControl: false,
+		zoomControlOptions: {
+			style: google.maps.ZoomControlStyle.LARGE,
+			position: google.maps.ControlPosition.RIGHT_TOP
+		},
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
 	map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
@@ -22,7 +27,7 @@ $(document).ready(function () {
 	if (sessionStorage.getItem("user")) {
 		USER = JSON.parse(sessionStorage.user);
 		$(".user-name").html(USER.name);
-		$(".user-points").html(USER.points + "pts");
+		$(".user-points").html((USER.points ? USER.points : "0") + "pts");
 		$(".user-avatar").css("background", "url(" + USER.avatar + ") no-repeat");
 		$(".user-avatar").css("background-size", "80px auto");
 	} else {
@@ -80,6 +85,16 @@ $(document).ready(function () {
 			}
 		}
 	});
+	
+	$(".open-menu-button").hover(
+		function() {
+			$(".open-menu-button").animate({left: "+=15", duration: 50});
+		},
+		function() {
+			$(".open-menu-button").animate({left: "-=15", duration: 50});
+		}
+	);
+	
 });
 
 function openMenu() {
@@ -120,10 +135,10 @@ function onAddQuestButtonClick() {
 		if (addQuestMarker != null) addQuestMarker.setMap(null);
 	} else {
 		
-		/*if (USER.time_since_last_quest <= 7) {
+		if (USER.time_since_last_quest <= 7) {
 			alert("Espere " + (7 - USER.time_since_last_quest) + " dias para cadastrar uma nova quest");
 			return;
-		}*/
+		}
 		
 		// Generating InfoWindow content
 		var infoContent = "<div class='add-quest-info-wrapper'><h3 class='info-title'>Escolha o tipo de Quest</h3><br/>" + "<form class='info-add-quest-form' onsubmit='return false;'>" + 
@@ -179,7 +194,7 @@ function uploadQuest(form) {
 	formObj.longitude = addQuestMarker.getPosition().lng();
 	formObj.facebook_id = USER.facebook_id;
 	formObj.api_key = USER.api_key;
-	
+	formObj.answer = formObj.answer.toLowerCase();
 	
 	var apiFunction;
 	if(formObj.quest_type == "gtaa")
@@ -197,11 +212,7 @@ function uploadQuest(form) {
 				closeAddQuestLightBox();
 				$(".lightbox-error").html();
 				
-				/*TODO:
-				
-					- ACRESCENTAR MARCADOR FIXO
-					- ATUALIZAR ULTIMA QUEST ADDED
-				*******/
+				location.reload();
 				
 				
 			} else {
@@ -227,7 +238,7 @@ function openRankingLightbox() {
 				setTimeout(function () {
 					$(".loader").html("");
 					populateRanking('w', $(".ranking-tabs li")[0]);
-				}, 1000);
+				}, 2000);
 			} else {
 				alert("Erro loco na hora de baixar o ranking");
 				closeRankingLightbox();

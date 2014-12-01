@@ -78,19 +78,12 @@ body {
 .open-menu-button {
 	background-color: rgba(30, 30, 30, 0.8);
 	border: 1px #ddd solid;
-	padding: 10px;
 	color: white;
-	width: 10px;
-	height: 10px;
 	float: right;
 	position: relative;
-	left: 33px;
+	left: 35px;
 	top: 2px;
 	cursor: pointer;
-}
-
-.open-menu-button:hover {
-	background-color: rgba(80, 80, 80, 0.8);
 }
 
 .user-name {
@@ -101,6 +94,7 @@ body {
 	left: 100px;
 	font-size: 24px;
 	font-weight: bold;
+	max-width: 200px;
 }
 
 .user-points {
@@ -400,7 +394,7 @@ body {
 /*** DOWNLOADED QUESTS *********************************************************/
 .info-downloaded-quest {
 	width: 200px;
-	height: 150px;
+	height: 200px;
 	text-align: center;
 }
 
