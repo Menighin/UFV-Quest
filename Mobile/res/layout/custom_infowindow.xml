@@ -9,9 +9,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/quest1_ico"
-		android:layout_gravity="center" >
-    </ImageView>
- 
+		android:layout_gravity="center"/>
+     
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,7 +26,7 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:textColor="#ff000000"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal" />
  
@@ -37,42 +36,60 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#ff7f7f7f"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:layout_marginTop="5dp" />
         
         <RelativeLayout
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:orientation="horizontal" >
+	        android:orientation="horizontal"
+	        android:layout_marginTop="5dp"
+	        android:layout_marginBottom="5dp" >
 	        
             <TextView
 	            android:id="@+id/custom_infowindow_points"
-	            android:text="100"
+	            android:text="100pts"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:ellipsize="end"
 	            android:singleLine="true"
-	            android:textColor="#ff000000"
+	            android:textColor="#ff5f5f5f"
 	            android:textSize="14sp"
 	            android:textStyle="bold" />
-	 
+	 		
+	           
+               
 	        <TextView
 	            android:id="@+id/custom_infowindow_expirate"
 	            android:text="02/10/2014"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
-	            android:textColor="#ff7f7f7f"
+	            android:textColor="#ff5f5f5f"
 	            android:textSize="14sp"
 	            android:layout_alignParentRight="true" />
+       
         
         </RelativeLayout>
 	    
+         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ff9f9f9f"
+            android:textSize="14sp"
+            android:layout_gravity="center_horizontal"
+            android:text="100%"
+            android:id="@+id/custom_infowindow_rate"
+            android:layout_marginTop="5dp"
+	        android:layout_marginBottom="5dp" />
+        
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#ff7f7f7f"
+            android:textColor="#ff9f9f9f"
             android:textSize="14sp"
             android:layout_gravity="center_horizontal"
-            android:text="Clique para resolver" />
+            android:text="Clique para resolver"
+            android:id="@+id/custom_infowindow_clickToSolve" />
             
         
     </LinearLayout>

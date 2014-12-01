@@ -10,5 +10,6 @@
     <string name="title_facebook_login">Login com facebook</string>
     <string name="drawer_open">dAberto</string>
     <string name="drawer_close">dFechado</string>
+    <string name="title_activity_go_to_and_answer_fragment">GoToAndAnswerFragment</string>
 
 </resources>

@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.onsoftwares.classes.UFVQuestUtils;
+import com.onsoftwares.utils.UFVQuestUtils;
 
 public class MultipleChoiceQuestActivity extends ActionBarActivity {
 	
@@ -29,7 +29,7 @@ public class MultipleChoiceQuestActivity extends ActionBarActivity {
 		
 		questId = getIntent().getIntExtra("quest", 0);
 		
-		setTitle(UFVQuestUtils.quests[questId].getTitle());
+		/*setTitle(UFVQuestUtils.quests[questId].getTitle());
 		
 		questionTextView.setText(UFVQuestUtils.quests[questId].getQuestion());
 		
@@ -40,7 +40,7 @@ public class MultipleChoiceQuestActivity extends ActionBarActivity {
 			btn.setText(answer);
 			btn.setOnClickListener(checkAnswer);
 			root.addView(btn);
-		}
+		}*/
 	}
 	
 	// Check answer if button is clicked
@@ -49,12 +49,12 @@ public class MultipleChoiceQuestActivity extends ActionBarActivity {
 		@Override
 		public void onClick(View v) {
 			Button btn = (Button) v;
-			if (btn.getText().equals(UFVQuestUtils.quests[questId].getAnswers().get(UFVQuestUtils.quests[questId].getTheRightOne()))) {
+			/*if (btn.getText().equals(UFVQuestUtils.quests[questId].getAnswers().get(UFVQuestUtils.quests[questId].getTheRightOne()))) {
 				Toast.makeText(MultipleChoiceQuestActivity.this, "Acertou, parabéns fera.", Toast.LENGTH_LONG).show();
 				finish();
 			} else {
 				Toast.makeText(MultipleChoiceQuestActivity.this, "Errou heim", Toast.LENGTH_SHORT).show();
-			}
+			}*/
 		}
 	};
 

@@ -1,0 +1,63 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:text="@string/hello_world"
+            android:textSize="24sp"
+            android:id="@+id/saa_title" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="Pergunta"
+            android:textColor="#ff555555"
+            android:textSize="16sp"
+            android:id="@+id/saa_question"
+            android:background="@drawable/border"
+            android:layout_margin="20dp" />
+        
+        <EditText 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="50dp"
+            android:layout_marginLeft="50dp"
+            android:id="@+id/saa_answer"/>
+        
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="solveGtaa"
+            android:text="Responder"
+            android:layout_marginBottom="5dp"
+            android:textColor="#FFFFFF"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:id="@+id/saa_answer_button"  />
+
+        <TextView 
+            android:id="@+id/saa_feedback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:text="" />
+        
+    </LinearLayout>
+
+</ScrollView>

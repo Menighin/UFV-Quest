@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/history_row"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp" >
+    
+    <TextView 
+        android:id="@+id/history_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFAAAAAA"
+        android:textSize="10sp"
+        android:text="01/12/2014"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_centerVertical="true"/>
+    
+    <ImageView
+        android:id="@+id/history_image"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_toRightOf="@+id/history_data"
+        android:src="@drawable/quest1_ico"
+        android:layout_marginTop="5dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp" />
+    
+    <LinearLayout 
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/history_image">
+	    <TextView
+	        android:id="@+id/history_title"
+	        android:layout_width="130dp"
+	        android:layout_height="wrap_content"
+	        android:text="Seek test"
+	        android:textStyle="bold"
+	        android:textSize="13sp" />
+	    
+	    <TextView 
+	        android:id="@+id/history_description"
+	        android:layout_width="130dp"
+	        android:layout_height="wrap_content"
+	        android:textColor="#FF888888"
+	        android:textSize="10sp"
+	        android:text="Descrição da quest aqui porra" />
+    </LinearLayout>
+    
+    <TextView
+        android:id="@+id/history_points"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FF999999"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:textSize="18sp"
+        android:text="10000pts"
+        android:layout_marginRight="10dp" />
+        "
+
+</RelativeLayout>

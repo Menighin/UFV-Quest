@@ -1,23 +1,50 @@
 package com.onsoftwares.ufvquest;
 
+import java.net.URL;
+
+import org.json.JSONObject;
+
+import android.content.Context;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
-public class MapActivity extends ActionBarActivity {
+import com.onsoftwares.classes.GoToAndAnswerQuest;
+import com.onsoftwares.classes.NavigationDrawerArrayAdapter;
+import com.onsoftwares.classes.NavigationDrawerItem;
+import com.onsoftwares.utils.GlobalSettings;
+import com.onsoftwares.utils.UFVQuestUtils;
+import com.onsoftwares.utils.WebserviceConnection;
 
+public class MapActivity extends FragmentActivity {
+
+	public static final int ITEM_QUESTS = 1;
+	public static final int ITEM_RANKING = 2;
+	public static final int ITEM_HISTORY = 3;
+	
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
-	private String[] mListOptions = { "Option 1", "Option 2", "Option 3" };
 	private ActionBarDrawerToggle mDrawerToggle;
+	public NavigationDrawerArrayAdapter navigationDrawerAdapter;
+	private FragmentManager fragmentManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +53,12 @@ public class MapActivity extends ActionBarActivity {
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
+		
+		navigationDrawerAdapter = new NavigationDrawerArrayAdapter(this);
+		navigationDrawerAdapter.initialize();
+		
+		mDrawerList.setAdapter(navigationDrawerAdapter);
 
-		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				R.layout.drawer_list_item, mListOptions));
-		// mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
 			mDrawerLayout, /* DrawerLayout object */
@@ -50,17 +79,66 @@ public class MapActivity extends ActionBarActivity {
 					getActionBar().setTitle("Menu");
 				}
 		};
+		
+		mDrawerList.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+				Fragment fragment = null;
+				switch(position) {
+					case ITEM_QUESTS:
+						navigationDrawerAdapter.selectMenu(position);
+						fragment = new MyMapFragment();
+						
+						transaction.replace(R.id.content_frame, fragment);
+						transaction.commit();
+						
+						break;
+					case ITEM_RANKING:
+						navigationDrawerAdapter.selectMenu(position);
+						fragment = new UserRankingFragment();
+						
+						transaction.replace(R.id.content_frame, fragment);
+						transaction.addToBackStack(null);
+						transaction.commit();
+						break;
+					case ITEM_HISTORY:
+						navigationDrawerAdapter.selectMenu(position);
+						fragment = new HistoryFragment();
+						
+						transaction.replace(R.id.content_frame, fragment);
+						transaction.addToBackStack(null);
+						transaction.commit();
+						break;
+				}
+				
+				if(mDrawerLayout.isDrawerOpen(Gravity.LEFT))
+					mDrawerLayout.closeDrawer(Gravity.LEFT);
+			}
+			
+		});
+		
 
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
 
 		Fragment fragment = new MyMapFragment();
-		FragmentManager fragmentManager = getSupportFragmentManager();
+		fragmentManager = getSupportFragmentManager();
 		fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
 	}
-
+	
+	@Override
+	public void onBackPressed() {
+		if(mDrawerLayout.isDrawerOpen(Gravity.LEFT)){
+			mDrawerLayout.closeDrawer(Gravity.LEFT);
+	    }else{
+	        super.onBackPressed();
+	    }
+	}
+	
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
@@ -83,5 +161,7 @@ public class MapActivity extends ActionBarActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+	
+	
 
 }

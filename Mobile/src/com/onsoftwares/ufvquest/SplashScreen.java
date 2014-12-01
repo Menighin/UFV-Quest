@@ -13,7 +13,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,7 +28,9 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
+import com.onsoftwares.classes.User;
 import com.onsoftwares.utils.GlobalSettings;
+import com.onsoftwares.utils.UFVQuestUtils;
 import com.onsoftwares.utils.WebserviceConnection;
 
 public class SplashScreen extends Activity {
@@ -99,7 +100,7 @@ public class SplashScreen extends Activity {
 		innerCircle2.startAnimation(inflate2);
 		innerCircle3.startAnimation(inflate3);
 		
-		if (sp.getBoolean("logged", false))
+		/*if (sp.getBoolean("logged", false))
 			new Handler().postDelayed(new Runnable () {
 	        	@Override
 	        	public void run() {
@@ -108,10 +109,12 @@ public class SplashScreen extends Activity {
 	        		startActivity(i);
 	        		finish();
 	        	}
-	        }, 3000);
+	        }, 3000);*/
 		
-		 if (sp.getBoolean("logged", false))
-	        fbButton.setVisibility(View.INVISIBLE);
+		 if (sp.getBoolean("logged", false)) {
+	       fbButton.setVisibility(View.INVISIBLE);
+	       makeMeRequest(Session.getActiveSession());
+		 }
 	}
 
 	@Override
@@ -138,27 +141,7 @@ public class SplashScreen extends Activity {
 	        if (!sp.getBoolean("logged", false)) {
 	        	
 	        	fbButton.setVisibility(View.INVISIBLE);
-	        	
-	        	Request.newMeRequest(session, new Request.GraphUserCallback() {
-					@Override
-					public void onCompleted(GraphUser user, Response response) {
-						if (user != null) {
-							try {
-								String urlParams = "facebook_id=" + user.getId() + 
-													"&name=" + URLEncoder.encode(user.getName(), "UTF-8") +
-													"&gender=" + user.getInnerJSONObject().getString("gender") + 
-													"&avatar=" + "http://graph.facebook.com/" + user.getId() + "/picture?type=large";
-								new RegisterUser().execute(urlParams);
-								
-								fbButton.setVisibility(View.INVISIBLE);
-								
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-						
-					}
-				}).executeAsync();
+	        	makeMeRequest(session);
 	        } 
 	    } else if (state.isClosed()) {
 	        Log.i("Chiodi viado", "Logged out...");
@@ -201,6 +184,32 @@ public class SplashScreen extends Activity {
 	    uiHelper.onSaveInstanceState(outState);
 	}
 	
+	private void makeMeRequest (Session session) {
+		if (UFVQuestUtils.debug)
+			Log.d("Debug", "Making facebook /me request");
+		
+		Request.newMeRequest(session, new Request.GraphUserCallback() {
+			@Override
+			public void onCompleted(GraphUser user, Response response) {
+				if (user != null) {
+					try {
+						String urlParams = "facebook_id=" + user.getId() + 
+											"&name=" + URLEncoder.encode(user.getName(), "UTF-8") +
+											"&gender=" + user.getInnerJSONObject().getString("gender") + 
+											"&avatar=" + "http://graph.facebook.com/" + user.getId() + "/picture?type=large";
+						new RegisterUser().execute(urlParams);
+						
+						fbButton.setVisibility(View.INVISIBLE);
+						
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				
+			}
+		}).executeAsync();
+	}
+	
 	private class RegisterUser extends AsyncTask<String, Void, Integer> {
 		
 		private JSONObject json;
@@ -215,7 +224,15 @@ public class SplashScreen extends Activity {
 		        	URL url = new URL(GlobalSettings.API_URL + "/createUser");
 		    	    json = WebserviceConnection.getJson(params[0], url);
 		    	    
-		    	   
+		    	    UFVQuestUtils.user = new User(
+		    	    		json.getString("name"),
+		    	    		json.getString("facebook_id"),
+		    	    		json.getString("api_key"),
+		    	    		json.getString("avatar"),
+		    	    		json.getString("gender"),
+		    	    		json.getInt("energy_left"),
+		    	    		json.getInt("points"));
+		    	    
 		    	    return json.getInt("status");
 		        } catch (Exception e) {
 		        	Log.e("RegisterUserAsync", e.toString());
@@ -244,10 +261,3 @@ public class SplashScreen extends Activity {
 		
 	}
 }
-
-//ImageView user_picture;
-//userpicture=(ImageView)findViewById(R.id.userpicture);
-//URL img_value = null;
-//img_value = new URL("http://graph.facebook.com/"+id+"/picture?type=large");
-//Bitmap mIcon1 = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
-//userpicture.setImageBitmap(mIcon1);

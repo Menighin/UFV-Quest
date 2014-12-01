@@ -1,18 +1,27 @@
 package com.onsoftwares.ufvquest;
 
-import android.content.Intent;
+import java.net.URL;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -22,8 +31,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -32,72 +39,113 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.onsoftwares.classes.CustomInfoWindowAdapter;
-import com.onsoftwares.classes.MultipleChoiceQuest;
-import com.onsoftwares.classes.UFVQuestUtils;
+import com.onsoftwares.classes.GoToAndAnswerQuest;
+import com.onsoftwares.classes.Quest;
+import com.onsoftwares.classes.SeekAndAnswerQuest;
+import com.onsoftwares.utils.GlobalSettings;
+import com.onsoftwares.utils.UFVQuestUtils;
+import com.onsoftwares.utils.WebserviceConnection;
 
 public class MyMapFragment extends Fragment implements LocationListener, GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener {
+	private View rootView;
 	private GoogleMap map;
 	private Marker mPositionMarker;
 	private LocationClient mLocationClient;
 	private LocationRequest mLocationRequest;
 	private Circle mCircle;
-	private boolean quest1Active, quest2Active;
+	private MapActivity parent;
 
-	public MyMapFragment() {
-		// Empty constructor required for fragment subclasses
-	}
+
+	public MyMapFragment() {	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_map, container, false);
-
-        map = ((SupportMapFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
 		
-		// Creating hardcoded quests
-		UFVQuestUtils.quests[0] = new MultipleChoiceQuest.Builder().id(0)
-				.title("Aula de seminários")
-				.description("Pergunta sobre a aula de seminários")
-				.location(new LatLng(-20.765185, -42.868873)).placeName("CCE")
-				.points(100).question("Quem é o professor da matéria?")
-				.addAnswer("Levy Fidelix").addAnswer("Levi Lelis")
-				.addAnswer("Levi Strauss").addAnswer("Levi Ackerman")
-				.theRightOne(1).build();
-
-		UFVQuestUtils.quests[1] = new MultipleChoiceQuest.Builder().id(0)
-				.title("4 Pilastras")
-				.description("Pergunta sobre as quatro pilastras")
-				.location(new LatLng(-20.757251, -42.875297)).placeName("CCE")
-				.points(100).question("Quantas são as pilastras?")
-				.addAnswer("1").addAnswer("3").addAnswer("4").addAnswer("2")
-				.theRightOne(2).build();
-
-		UFVQuestUtils.questMarkers[0] = map.addMarker(new MarkerOptions()
-				.position(UFVQuestUtils.quests[0].getLocation())
-				.title(UFVQuestUtils.quests[0].getTitle())
-				.snippet(UFVQuestUtils.quests[0].getDescription())
-				.icon(BitmapDescriptorFactory
-						.fromResource(R.drawable.marker_quest1)));
-
-		UFVQuestUtils.questMarkers[1] = map.addMarker(new MarkerOptions()
-				.position(UFVQuestUtils.quests[1].getLocation())
-				.title(UFVQuestUtils.quests[1].getTitle())
-				.snippet(UFVQuestUtils.quests[1].getDescription())
-				.icon(BitmapDescriptorFactory
-						.fromResource(R.drawable.marker_quest1)));
-
-		quest1Active = quest2Active = true;
-		CustomInfoWindowAdapter customInfoWindowAdapter = new CustomInfoWindowAdapter(
-				getActivity());
-		map.setInfoWindowAdapter(customInfoWindowAdapter);
-		map.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
-
-			@Override
-			public void onInfoWindowClick(Marker marker) {
-
-				
+		if (rootView == null) {
+			
+			try {
+				parent = (MapActivity) getActivity();
+			} catch (Exception e) {
+				e.printStackTrace();
+				parent = null;
 			}
-		});
+			
+			rootView = inflater.inflate(R.layout.fragment_map, container, false);
+	
+	        map = ((SupportMapFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
+			
+	        new DownloadQuests().execute("facebook_id=" + UFVQuestUtils.user.getFacebookId() + "&api_key=" + UFVQuestUtils.user.getApiKey());
+	        
+			// Creating hardcoded quests
+	
+			CustomInfoWindowAdapter customInfoWindowAdapter = new CustomInfoWindowAdapter(getActivity());
+			map.setInfoWindowAdapter(customInfoWindowAdapter);
+			map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+				@Override
+				public void onInfoWindowClick(final Marker marker) {
+					
+					AlertDialog alert = new AlertDialog.Builder(getActivity())
+											.setTitle("Confirmação")
+											.setMessage("Essa ação gastará 1 de energia")
+											.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 
+												@Override
+												public void onClick(DialogInterface dialog, int which) {
+													UFVQuestUtils.user.setEnergyLeft(UFVQuestUtils.user.getEnergyLeft() - 1);
+													parent.navigationDrawerAdapter.notifyDataSetChanged();
+													Quest q = UFVQuestUtils.questMarkerMap.get(marker);
+													
+													if (q != null) {
+														final Fragment fragment;
+														if (q instanceof GoToAndAnswerQuest) {
+															fragment = new GoToAndAnswerFragment();
+														} else {
+															fragment = new SeekAndAnswerFragment();
+														}
+															
+														if (fragment != null) {
+															UFVQuestUtils.currentQuest = q;
+															UFVQuestUtils.currentMarker = marker;
+															FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+															
+															transaction.replace(R.id.content_frame, fragment);
+															transaction.addToBackStack(null);
+															transaction.commit();
+															
+														}
+													}
+												}
+											})
+											.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+												
+												@Override
+												public void onClick(DialogInterface dialog, int which) {
+													// Do nothing
+												}
+											}).create();
+					alert.show();
+				}
+			});
+			
+			map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+				@Override
+				public boolean onMarkerClick(Marker m) {
+					Quest q = UFVQuestUtils.questMarkerMap.get(m);
+					if (q != null && q.isActive()) {
+						m.showInfoWindow();
+						map.animateCamera(CameraUpdateFactory.newLatLng(m.getPosition()));
+					}
+					return true;
+				}
+			});
+			
+			
+		} else {
+			 ViewGroup parent = (ViewGroup) rootView.getParent();
+		        if (parent != null)
+		            parent.removeView(rootView);
+		}
+		
 		return rootView;
 	}
 	
@@ -117,11 +165,21 @@ public class MyMapFragment extends Fragment implements LocationListener, GoogleP
 		mLocationClient = new LocationClient(getActivity().getApplicationContext(), this, this);
     }
 	
+
+	
 	@Override
 	public void onStart() {
 		super.onStart();
 		mLocationClient.connect();
 	};
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		mLocationClient.connect();
+		
+		((MapActivity) getActivity()).navigationDrawerAdapter.selectMenu(MapActivity.ITEM_QUESTS);
+	}
 	
 	@Override
 	public void onStop() {
@@ -134,28 +192,29 @@ public class MyMapFragment extends Fragment implements LocationListener, GoogleP
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
-		Log.d("DEY MERDA", "DEU MERDA");
+		if (UFVQuestUtils.debug)
+			Log.d("Debug", "onConnectionFailed called");
 
 	}
 
 	@Override
 	public void onConnected(Bundle arg0) {
-		Log.d("N DEY MERDA", "N DEU MERDA");
+		if (UFVQuestUtils.debug)
+			Log.d("Debug", "onConnected called");
 		mLocationClient.requestLocationUpdates(mLocationRequest, this);
 	}
 
 	@Override
 	public void onDisconnected() {
-		Log.d("DEY MERDA", "DISCONECTOU");
+		if (UFVQuestUtils.debug)
+			Log.d("Debug", "onDisconnected called");
 
 	}
 
 	@Override
 	public void onLocationChanged(Location arg0) {
 		// Get the current location
-		Log.d("HUEHUE", "OIOIOOI");
 		Location currentLocation = mLocationClient.getLastLocation();
-		Log.d("HUEHUE", "OIOIOOI");
 		// Display the current location in the UI
 		if (currentLocation != null) {
 			LatLng currentLatLng = new LatLng(currentLocation.getLatitude(),
@@ -177,54 +236,126 @@ public class MyMapFragment extends Fragment implements LocationListener, GoogleP
 				mPositionMarker.setPosition(currentLatLng);
 				mCircle.setCenter(currentLatLng);
 			}
-
-			// Check if quest is eligible
-			if (distFrom(currentLocation.getLatitude(),
-					currentLocation.getLongitude(),
-					UFVQuestUtils.questMarkers[0].getPosition().latitude,
-					UFVQuestUtils.questMarkers[0].getPosition().longitude) <= UFVQuestUtils.radius) {
-
-				if (!quest1Active) {
-					UFVQuestUtils.questMarkers[0]
-							.setIcon(BitmapDescriptorFactory
-									.fromResource(R.drawable.marker_quest1));
-					quest1Active = true;
-				}
-
-			} else {
-				if (quest1Active) {
-					UFVQuestUtils.questMarkers[0]
-							.setIcon(BitmapDescriptorFactory
-									.fromResource(R.drawable.marker_quest1_disabled));
-					quest1Active = false;
-				}
-			}
-
-			if (distFrom(currentLocation.getLatitude(),
-					currentLocation.getLongitude(),
-					UFVQuestUtils.questMarkers[1].getPosition().latitude,
-					UFVQuestUtils.questMarkers[1].getPosition().longitude) <= UFVQuestUtils.radius) {
-
-				if (!quest2Active) {
-					UFVQuestUtils.questMarkers[1]
-							.setIcon(BitmapDescriptorFactory
-									.fromResource(R.drawable.marker_quest1));
-					quest2Active = true;
-				}
-			} else {
-				if (quest2Active) {
-					UFVQuestUtils.questMarkers[1]
-							.setIcon(BitmapDescriptorFactory
-									.fromResource(R.drawable.marker_quest1_disabled));
-					quest2Active = false;
+			
+			//Check if quest is eligible
+			for (Marker m : UFVQuestUtils.questMarkers) {
+				Quest q = UFVQuestUtils.questMarkerMap.get(m);
+				if (distFrom(currentLocation.getLatitude(), currentLocation.getLongitude(), m.getPosition().latitude, m.getPosition().longitude) <= UFVQuestUtils.radius) {
+					Boolean b = m.isInfoWindowShown();
+					if (q instanceof GoToAndAnswerQuest)
+						m.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.marker_quest1));
+					else if (q instanceof SeekAndAnswerQuest)
+						m.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.marker_quest2));
+					q.setActive(true); // TODO: CHECAR SESSAPORRA PODE SER NULL
+					if (b) m.showInfoWindow();
+				} else {
+					m.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.marker_quest1_disabled));
+					q.setActive(false);
+					m.hideInfoWindow();
 				}
 			}
 
 			if (UFVQuestUtils.debug)
-				Toast.makeText(getActivity(), currentLatLng.toString(),
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), currentLatLng.toString(),Toast.LENGTH_SHORT).show();
 		}
 
+	}
+	
+	private class DownloadQuests extends AsyncTask<String, Void, Integer> {
+		
+		private JSONObject json;
+		
+		@Override
+		protected Integer doInBackground(String... params) {
+			ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+		   
+			if (networkInfo != null && networkInfo.isConnected()) {
+		        try {
+		        	URL url = new URL(GlobalSettings.API_URL + "/getQuestIStillCanComplete");
+		    	    json = WebserviceConnection.getJson(params[0], url);
+		    	    
+		    	    Log.e("JSON", json.toString());
+		    	    
+		    	    return json.getInt("status");
+		        } catch (Exception e) {
+		        	Log.e("RegisterUserAsync", e.toString());
+		        	e.printStackTrace();
+		        	return -1;
+		        }
+		    } else {
+		    	return -3;
+		    }
+		}
+		
+		@Override
+		protected void onPostExecute(Integer status) {
+			if (status != 1) {
+				Toast.makeText(getActivity(), "Ocorreu um erro ao baixar as quests", Toast.LENGTH_SHORT).show();
+			} else {
+				try {
+					JSONArray quests = json.getJSONArray("quests");
+					JSONObject j;
+					for (int i = 0; i < quests.length(); i++) {
+						j = quests.getJSONObject(i);
+						String type = j.getString("type");
+						String expirate = j.getString("expiration_date");
+						expirate = expirate.substring(8, 10) + "/" + expirate.substring(5, 7) + "/" + expirate.substring(0, 4);
+						if (type.equals("gtaa")) {
+							UFVQuestUtils.quests.add(new GoToAndAnswerQuest.Builder()
+									.id(j.getInt("id"))
+									.title(j.getString("title"))
+									.description(j.getString("description"))
+									.location(new LatLng(j.getDouble("latitude"), j.getDouble("longitude")))
+									.placeName(j.getString("place_name"))
+									.points(j.getInt("points"))
+									.question(j.getString("question"))
+									.addAnswer(j.getString("answer1"))
+									.addAnswer(j.getString("answer2"))
+									.addAnswer(j.getString("answer3"))
+									.addAnswer(j.getString("answer4"))
+									.theRightOne(j.getInt("correct_answer"))
+									.successRate(j.getDouble("success_rate"))
+									.expirateOn(expirate)
+									.build());
+							
+							
+						} else if (type.equals("saa")) {
+							UFVQuestUtils.quests.add(new SeekAndAnswerQuest.Builder()
+								.id(j.getInt("id"))
+								.title(j.getString("title"))
+								.description(j.getString("description"))
+								.location(new LatLng(j.getDouble("latitude"), j.getDouble("longitude")))
+								.placeName(j.getString("place_name"))
+								.points(j.getInt("points"))
+								.question(j.getString("question"))
+								.answer(j.getString("answer"))
+								.successRate(j.getDouble("success_rate"))
+								.expirateOn(expirate)
+								.build());
+							
+						}
+						
+						
+						UFVQuestUtils.questMarkers.add(map.addMarker(new MarkerOptions()
+							.position(UFVQuestUtils.quests.get(i).getLocation())
+							.title(UFVQuestUtils.quests.get(i).getTitle())
+							.snippet(UFVQuestUtils.quests.get(i).getDescription())
+							.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_quest1_disabled))));
+						
+						UFVQuestUtils.questMarkerMap.put(UFVQuestUtils.questMarkers.get(i), UFVQuestUtils.quests.get(i));
+						
+					}
+					
+					if (parent != null)
+						parent.navigationDrawerAdapter.editNotification(1, quests.length() + "");
+					
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
 	}
 
 	private double distFrom(double lat1, double lng1, double lat2, double lng2) {
