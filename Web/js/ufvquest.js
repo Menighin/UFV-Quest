@@ -194,13 +194,14 @@ function uploadQuest(form) {
 	formObj.longitude = addQuestMarker.getPosition().lng();
 	formObj.facebook_id = USER.facebook_id;
 	formObj.api_key = USER.api_key;
-	formObj.answer = formObj.answer.toLowerCase();
 	
 	var apiFunction;
 	if(formObj.quest_type == "gtaa")
 		apiFunction = "/createQuestGoToAndAnswer";
-	else if(formObj.quest_type == "saa")
+	else if(formObj.quest_type == "saa") {
+		formObj.answer = formObj.answer.toLowerCase();
 		apiFunction = "/createQuestSeekAndAnswer";
+	}
 	
 	$.ajax({
 		type: "POST",
