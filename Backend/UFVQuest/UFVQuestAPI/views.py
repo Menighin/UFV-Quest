@@ -197,8 +197,8 @@ def getUserRanking(request):
 		for user in week:
 			auxWeek.append({'points': user['points_sum'], 'name': User.objects.get(id = user['user']).name, 'avatar' :  User.objects.get(id = user['user']).avatar})
 
-		data['total'] = sorted(auxTotal, key = lambda k: -k['points'])
-		data['week'] = sorted(auxWeek, key = lambda k: -k['points'])
+		data['total'] = sorted(auxTotal, key = lambda k: -k['points'])[:10]
+		data['week'] = sorted(auxWeek, key = lambda k: -k['points'])[:10]
 	except Exception as e:
 		data['status'] = 0
 		data['message'] = str(e)
